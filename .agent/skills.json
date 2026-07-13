@@ -1,0 +1,19 @@
+{
+  "skills": [
+    {
+      "name": "iac_validator",
+      "description": "Statically lints infrastructure layouts, verifies syntactic validity, and guarantees strict multi-bucket isolation boundaries to prevent recursive execution loops.",
+      "execution_command": "bash .agent/skill_iac_validator.sh"
+    },
+    {
+      "name": "payload_mock_engine",
+      "description": "Injects an identical production-grade AWS S3 ObjectCreated event record into the local SQS queue via bash for rapid offline integration testing.",
+      "execution_command": "bash .agent/skill_payload_mock.sh"
+    },
+    {
+      "name": "cost_estimator",
+      "description": "Parses the active Terraform sizing parameters and projects execution spending matrices per million requests to guarantee micro-billing safety.",
+      "execution_command": "bash .agent/skill_cost_estimator.sh"
+    }
+  ]
+}
