@@ -29,6 +29,11 @@ jobs:
       - name: Install test dependencies
         run: pip install -r tests/requirements-test.txt
 
+      - name: Dependency security audit
+        run: |
+          pip install pip-audit
+          pip-audit -r src/requirements.txt --desc on
+
       - name: Run test suite
         env:
           SOURCE_BUCKET: daisy-source-test

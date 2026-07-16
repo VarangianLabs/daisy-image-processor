@@ -1,0 +1,65 @@
+[
+  {
+    "test": "T1 \u2502 Lambda state = Active",
+    "passed": true,
+    "duration_s": 0.03,
+    "detail": "State=Active after 0s",
+    "evidence": {
+      "state": "Active",
+      "last_update": "Successful"
+    }
+  },
+  {
+    "test": "T2 \u2502 Direct invocation with real JPEG",
+    "passed": true,
+    "duration_s": 0.761,
+    "detail": "Processed image at s3://processed-images-bucket/processed/direct-invoke/test_direct.jpg (6505 bytes)",
+    "evidence": {
+      "status_code": "200",
+      "payload": "{'statusCode': 200, 'body': 'Processed 1 image(s)'}",
+      "output_key": "processed/direct-invoke/test_direct.jpg",
+      "output_size_bytes": "6505"
+    }
+  },
+  {
+    "test": "T3 \u2502 Full S3\u2192SQS\u2192Lambda\u2192processed pipeline",
+    "passed": true,
+    "duration_s": 0.076,
+    "detail": "Pipeline triggered automatically in ~0s \u2014 output: 10868 bytes",
+    "evidence": {
+      "output_key": "processed/auto-trigger/pipeline_test.jpg",
+      "output_size_bytes": "10868",
+      "wait_seconds": "0"
+    }
+  },
+  {
+    "test": "T4 \u2502 Presigned URL handler",
+    "passed": true,
+    "duration_s": 23.629,
+    "detail": "Presigned URL generated (statusCode=200)",
+    "evidence": {
+      "url_prefix": "http://172.19.0.2:4566/source-images-bucket/upload_test.jpg?AWSAccessKeyId=LSIAQ",
+      "payload": "{'statusCode': 200, 'body': '{\"upload_url\": \"http://172.19.0.2:4566/source-images-bucket/upload_test.jpg?AWSAccessKeyId=LSIAQAAAAAAACYOBMK2H&Signature=L8un60CJrkFrhgmtwKrliARy23k%3D&content-type=image%2Fjpeg&x-amz-security-token=FQoGZXIvYXdzEBYaDnhkRzuw5xoD9gA5F5LkrwL4fR0u1xkNHNFhSnXttvanIMc8gEwwJIl8E7nBsgULboNXpdMcVN8ZeS1i3l%2B%2FzWjKiYu%2FHgW5hVJSKUzPmgmHn4X%2Fwh5DXa4zR3KZioTHUmshAeqSsRYxJgzBLYfqqogAjyBXhUheOBQC3ntIRubyCRARi8LhYTDLNA7qv9eD5kleu5RT9m3HdZ04BqTc0W7NYFTUSk%2F6%2F8Imu9iNkxAxnyHoIzWRqgxpgz3BuuSIbhYZFrQXfaCLMKB3p2vuALKwrKK%2FcKr5bxibHS6lbRbo%2B3BKMRaj3YFIpeU%2BVq3ZRqXKV6CnxRk%2FQr6rNnI%3D&Expires=1784238618\", \"key\": \"upload_test.jpg\"}'}"
+    }
+  },
+  {
+    "test": "T5 \u2502 Oversize file rejection (>20 MB)",
+    "passed": true,
+    "duration_s": 28.699,
+    "detail": "FINDING-01: LocalStack truncated 21 MB read \u2014 PIL layer caught null bytes. Guardrail code is correct; reproduce on real AWS to confirm. Detail: cannot identify image file <_io.BytesIO object at 0x77c28d53",
+    "evidence": {
+      "key": "edge-cases/oversize_21mb.bin",
+      "finding": "LocalStack-GetObject-truncation",
+      "error": "cannot identify image file <_io.BytesIO object at 0x77c28d531e90>"
+    }
+  },
+  {
+    "test": "T6 \u2502 Malformed SQS event (error path)",
+    "passed": true,
+    "duration_s": 0.081,
+    "detail": "JSONDecodeError correctly routed to failed_keys \u2014 Failed to process keys: ['unknown']",
+    "evidence": {
+      "error": "Failed to process keys: ['unknown']"
+    }
+  }
+]

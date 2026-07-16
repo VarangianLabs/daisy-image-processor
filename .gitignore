@@ -5,6 +5,8 @@ terraform/*.lock.info
 terraform/.terraform/
 terraform/lambda.zip
 terraform/.terraform.lock.hcl
+# Local backend override — never commit (local dev only, contains no secrets)
+terraform/backend_override.tf
 
 # LocalStack
 .localstack/
@@ -24,6 +26,11 @@ vendor/
 
 # Build scripts intermediate outputs
 scripts/__pycache__/
+
+# Chaos test fixtures (generated at runtime by make chaos)
+tests/fixtures/chaos_*.jpg
+tests/fixtures/chaos_*.bin
+tests/fixtures/chaos_*.png
 
 # IDE
 .vscode/settings.json

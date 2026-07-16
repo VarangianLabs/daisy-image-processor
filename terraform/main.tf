@@ -192,7 +192,11 @@ resource "aws_lambda_function" "image_processor" {
       SOURCE_BUCKET    = var.source_bucket_name
       PROCESSED_BUCKET = var.processed_bucket_name
       SQS_QUEUE_URL    = aws_sqs_queue.image_processing_queue.id
-      AWS_ENDPOINT_URL = var.environment == "local" ? "http://localhost:4566" : ""
+      # I-07: Use var.localstack_endpoint (not hardcoded localhost) so the Lambda
+      # container can reach LocalStack when the Docker bridge IP differs from
+      # the host's localhost. Override in local.tfvars with your bridge IP.
+      # Run: docker inspect daisy-localstack --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'
+      AWS_ENDPOINT_URL = var.environment == "local" ? var.localstack_endpoint : ""
       ENVIRONMENT      = var.environment
     }
   }

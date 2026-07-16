@@ -10,6 +10,9 @@ services:
       - SERVICES=s3,sqs,lambda,iam,logs
       - DEFAULT_REGION=us-east-1
       - DOCKER_HOST=unix:///var/run/docker.sock
+      # Increase Lambda container startup timeout — 25 MB zip + Python 3.12
+      # cold start exceeds the default 10s under Docker-in-Docker on WSL2.
+      - LAMBDA_RUNTIME_ENVIRONMENT_TIMEOUT=120
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./.localstack:/var/lib/localstack"

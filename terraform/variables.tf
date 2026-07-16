@@ -36,3 +36,9 @@ variable "environment" {
   type        = string
   default     = "local"
 }
+
+variable "localstack_endpoint" {
+  description = "LocalStack API endpoint for local development. Use the Docker bridge IP when Lambda runs inside the LocalStack Docker executor (e.g. http://172.17.0.1:4566). Ignored in production (environment != \"local\")."
+  type        = string
+  default     = "http://localhost:4566"
+}

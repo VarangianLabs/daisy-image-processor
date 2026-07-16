@@ -4,17 +4,20 @@
 #         make help        — list all targets with descriptions
 #
 # Prerequisites (local development):
-#   docker, terraform >= 1.5, python3.12, pip, zip
+#   docker, python3.12, pip, zip
+#   terraform >= 1.5  (only required for deploy-local-tf)
 #
 # Typical local workflow:
 #   make local-up        ← start LocalStack
-#   make deploy-local    ← build zip + init + apply (idempotent)
-#   make test            ← run test suite (no Docker or AWS required)
+#   make vendor          ← download Lambda dependencies
+#   make build           ← package src/ + vendor/ into lambda.zip
+#   make deploy-local    ← deploy to LocalStack via Python script (fast, idempotent)
+#   make test            ← run unit test suite (no Docker or AWS required)
 #   make local-down      ← tear down LocalStack
 
 .DEFAULT_GOAL := help
-.PHONY: local-up local-down vendor build migrate-vendor deploy-local destroy \
-        test lint clean help
+.PHONY: local-up local-down vendor build migrate-vendor deploy-local deploy-local-tf \
+        destroy test lint chaos clean help
 
 # Use the project venv if it exists; fall back to system python3.
 PYTHON := $(if $(wildcard .venv/bin/python3),.venv/bin/python3,python3)
@@ -57,11 +60,16 @@ migrate-vendor:  ## One-time: remove legacy vendored packages from src/ after C-
 # For persistent state, create terraform/backend_override.tf (gitignored).
 # See terraform/DEPLOYMENT-NOTES.md for instructions.
 
-deploy-local: build  ## Build zip, init Terraform, apply to LocalStack
+deploy-local: build  ## Build zip then deploy all resources to LocalStack (fast, idempotent)
+	@echo "Deploying to LocalStack via Python script..."
+	PYTHONPATH=vendor $(PYTHON) scripts/deploy_local.py
+
+deploy-local-tf: build  ## Build zip then deploy via Terraform (requires backend_override.tf)
+	@echo "Deploying via Terraform (see terraform/DEPLOYMENT-NOTES.md for backend setup)..."
 	terraform -chdir=terraform init \
-		-input=false -reconfigure -backend=false
+		-input=false -reconfigure
 	terraform -chdir=terraform apply \
-		-var-file="local.tfvars" -auto-approve
+		-var-file="local.tfvars" -auto-approve -parallelism=1
 
 destroy:  ## Tear down all LocalStack infrastructure (does not stop the container)
 	terraform -chdir=terraform destroy \
@@ -69,13 +77,16 @@ destroy:  ## Tear down all LocalStack infrastructure (does not stop the containe
 
 # ── Quality ────────────────────────────────────────────────────────────────────
 
-test:  ## Run full test suite (no AWS, Docker, or vendor/ required)
-	PYTHONPATH=src $(PYTHON) -m pytest tests/ --tb=short -q
+test:  ## Run full test suite (no AWS or Docker required; uses vendor/ for PIL)
+	PYTHONPATH=src:vendor $(PYTHON) -m pytest tests/ --tb=short -q
 
 lint:  ## Lint src/ and tests/ (ruff preferred, falls back to flake8)
 	@$(PYTHON) -m ruff check src/ tests/ 2>/dev/null \
 		|| $(PYTHON) -m flake8 src/ tests/ \
 		|| echo "Neither ruff nor flake8 found — skipping lint"
+
+chaos:  ## Run the Chaos & Event Simulator stress suite (no AWS or Docker required)
+	PYTHONPATH=vendor $(PYTHON) .github/skills/chaos-event-simulator/scripts/run_chaos_suite.py
 
 # ── Housekeeping ───────────────────────────────────────────────────────────────
 
