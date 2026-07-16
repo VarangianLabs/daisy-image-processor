@@ -1,6 +1,6 @@
 # Daisy Image Processor
 
-[![CI](https://github.com/prince-ngcobo/daisy-image-processor/actions/workflows/ci.yml/badge.svg)](https://github.com/prince-ngcobo/daisy-image-processor/actions/workflows/ci.yml)
+[![CI](https://github.com/VarangianLabs/daisy-image-processor/actions/workflows/ci.yml/badge.svg)](https://github.com/VarangianLabs/daisy-image-processor/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
 [![Terraform 1.5+](https://img.shields.io/badge/terraform-1.5%2B-purple.svg)](https://developer.hashicorp.com/terraform)
@@ -101,7 +101,7 @@ flowchart LR
 **1. Clone and configure**
 
 ```bash
-git clone https://github.com/prince-ngcobo/daisy-image-processor.git
+git clone https://github.com/VarangianLabs/daisy-image-processor.git
 cd daisy-image-processor
 cp .env.example .env       # review the values; defaults work for LocalStack
 ```
